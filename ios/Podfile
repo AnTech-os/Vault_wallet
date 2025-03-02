@@ -27,7 +27,7 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'SecureDIYBudgetApp' do
+target 'Vault_wallet' do
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
   config = use_native_modules!
 
