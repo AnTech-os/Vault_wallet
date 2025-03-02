@@ -74,6 +74,7 @@ const TabNavigator = () => {
           tabBarIcon: ({ color, size }) => (
             <Icon name="piggy-bank" size={size} color={color} />
           ),
+          headerShown: false
         }}
       />
     </Tab.Navigator>

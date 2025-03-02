@@ -60,7 +60,11 @@ const SwipeableSubscriptionItem: React.FC<SwipeableSubscriptionItemProps> = ({
 
   // Format date
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    // Parse the YYYY-MM-DD format and create a date that preserves the day
+    const [year, month, day] = dateString.split('-').map(num => parseInt(num));
+    // Create date with local timezone (months are 0-indexed in JavaScript Date)
+    const date = new Date(year, month - 1, day);
+    
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric'

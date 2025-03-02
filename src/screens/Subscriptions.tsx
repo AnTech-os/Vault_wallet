@@ -149,7 +149,7 @@ const SAMPLE_SUBSCRIPTIONS: Subscription[] = [
     category: 'entertainment',
     cost: 6.99,
     billingCycle: 'monthly',
-    nextRenewal: new Date(2025, 2, 28).toISOString(),
+    nextRenewal: new Date(2025, 2, 1).toISOString(), // Set to March 1, 2025 (today's date)
     icon: CATEGORY_ICONS['entertainment']
   }
 ];
@@ -229,50 +229,62 @@ const Subscriptions: React.FC = () => {
     }
   };
 
-  // Update renewal dates automatically
-  useEffect(() => {
-    const checkAndUpdateRenewalDates = () => {
-      const now = new Date();
-      const updated = subscriptions.map(subscription => {
-        const renewalDate = new Date(subscription.nextRenewal);
+  // Function to check and update renewal dates
+  const checkAndUpdateRenewalDates = useCallback(() => {
+    const now = new Date();
+    const updated = subscriptions.map(subscription => {
+      const renewalDate = new Date(subscription.nextRenewal);
+      
+      // If the renewal date has passed
+      if (renewalDate < now) {
+        const newRenewalDate = new Date(renewalDate);
         
-        // If the renewal date has passed
-        if (renewalDate < now) {
-          const newRenewalDate = new Date(renewalDate);
-          
-          // Calculate next renewal date based on billing cycle
-          switch (subscription.billingCycle) {
-            case 'monthly':
-              // Keep incrementing by a month until we get a future date
-              while (newRenewalDate < now) {
-                newRenewalDate.setMonth(newRenewalDate.getMonth() + 1);
-              }
-              break;
-            case 'yearly':
-              // Keep incrementing by a year until we get a future date
-              while (newRenewalDate < now) {
-                newRenewalDate.setFullYear(newRenewalDate.getFullYear() + 1);
-              }
-              break;
-            // Add other billing cycles here if needed
-          }
-          
-          return {
-            ...subscription,
-            nextRenewal: newRenewalDate.toISOString().split('T')[0]
-          };
+        // Calculate next renewal date based on billing cycle
+        switch (subscription.billingCycle) {
+          case 'monthly':
+            // Keep incrementing by a month until we get a future date
+            while (newRenewalDate < now) {
+              newRenewalDate.setMonth(newRenewalDate.getMonth() + 1);
+            }
+            break;
+          case 'yearly':
+            // Keep incrementing by a year until we get a future date
+            while (newRenewalDate < now) {
+              newRenewalDate.setFullYear(newRenewalDate.getFullYear() + 1);
+            }
+            break;
+          case 'quarterly':
+            // Keep incrementing by 3 months until we get a future date
+            while (newRenewalDate < now) {
+              newRenewalDate.setMonth(newRenewalDate.getMonth() + 3);
+            }
+            break;
+          // Add other billing cycles here if needed
         }
         
-        return subscription;
-      });
-      
-      // Update state if any dates were changed
-      if (JSON.stringify(updated) !== JSON.stringify(subscriptions)) {
-        setSubscriptions(updated);
-        saveSubscriptions(updated);
+        // Format the date in a way that preserves the local date
+        const year = newRenewalDate.getFullYear();
+        const month = String(newRenewalDate.getMonth() + 1).padStart(2, '0');
+        const day = String(newRenewalDate.getDate()).padStart(2, '0');
+        
+        return {
+          ...subscription,
+          nextRenewal: `${year}-${month}-${day}`
+        };
       }
-    };
+      
+      return subscription;
+    });
     
+    // Update state if any dates were changed
+    if (JSON.stringify(updated) !== JSON.stringify(subscriptions)) {
+      setSubscriptions(updated);
+      saveSubscriptions(updated);
+    }
+  }, [subscriptions, saveSubscriptions]);
+  
+  // Update renewal dates automatically
+  useEffect(() => {
     // Check immediately when component mounts
     checkAndUpdateRenewalDates();
     
@@ -281,7 +293,7 @@ const Subscriptions: React.FC = () => {
     
     // Clean up interval on unmount
     return () => clearInterval(interval);
-  }, [subscriptions]);
+  }, [checkAndUpdateRenewalDates]);
   
   // Helper function to get monthly equivalent cost
   const getMonthlyEquivalent = (cost: number, billingCycle: string) => {
@@ -683,6 +695,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: '#FFFFFF',
   },
+
   title: {
     fontSize: 28,
     fontWeight: 'bold',

@@ -5,6 +5,18 @@ All notable changes to the Secure DIY Budget App will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2025-03-02
+
+### Changed
+- Enhanced Savings Account UI:
+  - Improved alignment of APY and monthly interest values
+  - Made account tiles more compact and visually appealing
+  - Increased font size of balance values
+  - Adjusted formatting to show cents for smaller balances
+  - Implemented abbreviated formatting for 6+ and 7+ figure balances
+  - Fixed options menu to appear directly under click location
+  - Replaced system confirmation dialogs with custom styled ones
+
 ## [Unreleased]
 
 ### Added
@@ -93,9 +105,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented local-only data storage approach
 - No external account linking functionality
 
+### Savings Goals Management
+- Implemented comprehensive Savings Goals screen with:
+  - Goal creation with title, target amount, current amount, target date, and category
+  - Visual progress tracking with progress bars and percentage indicators
+  - Category-based organization with icon representation
+  - Filtering and sorting capabilities by progress and target date
+  - Summary statistics showing total saved, target amounts, and overall progress
+- Added SavingsGoalItem component featuring:
+  - Clean card-based UI with goal details
+  - Visual progress bars with color indicators
+  - Quick-action buttons for deposits and history
+  - Remaining amount calculation
+- Implemented SavingsGoalFormModal with:
+  - Form fields for all goal details
+  - Date picker for target dates
+  - Category selection with visual icons
+  - Form validation for logical constraints
+- Added deposit functionality:
+  - Quick deposit input within goal cards
+  - Automatic progress updates
+  - Deposit history tracking
+- Created SavingsDepositHistoryModal to display:
+  - Complete deposit history for each goal
+  - Date and amount details for each transaction
+  - Summary statistics for the selected goal
+- Enhanced user experience with:
+  - Empty state handling with helpful prompts
+  - Confirmation dialogs for destructive actions
+  - Intuitive category filtering with icon-based selection
+  - Sorting options for better goal management
+
 ### Technical
 - Project initialized with React Native CLI (no Expo)
 - TypeScript configuration
 - Navigation setup with @react-navigation/native and @react-navigation/bottom-tabs
 - iOS setup with CocoaPods dependencies
 - Added @react-native-community/datetimepicker for date selection
+- Integrated uuid for unique identifier generation
