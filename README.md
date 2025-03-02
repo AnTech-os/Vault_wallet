@@ -1,4 +1,22 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Secure DIY Budget App
+
+A privacy-focused, secure budgeting tool for iOS built with React Native. This app emphasizes a do-it-yourself approach to budgeting while keeping all your financial data local and secure.
+
+## Features
+
+- **Privacy First**: All data is stored locally on your device
+- **No Linked Accounts**: Manual entry ensures complete control over your financial data
+- **Secure by Design**: Built with security best practices
+- **DIY Approach**: Full control over your budgeting process
+
+## Technical Stack
+
+- **Framework**: React Native (CLI)
+- **Language**: TypeScript
+- **Navigation**: React Navigation
+- **UI Components**: Custom-built components
+
+This project was bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
 
