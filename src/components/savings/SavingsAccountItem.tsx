@@ -123,15 +123,16 @@ const SavingsAccountItem: React.FC<SavingsAccountItemProps> = ({
         
         {/* Middle section: APY and monthly interest */}
         <View style={styles.middleSection}>
-          <View style={styles.inlineValueContainer}>
+          <View style={styles.labelValueContainer}>
+            <Text style={styles.inlineLabel}>APY</Text>
             <Text style={styles.apyValue}>{account.apy.toFixed(2)}%</Text>
           </View>
           
-          <View style={styles.inlineValueContainer}>
-            <Icon name="trending-up" size={14} color="#4CD964" style={styles.interestIcon} />
-            <Text style={styles.interestValue}>
-              {monthlyInterestFormatted}<Text style={styles.interestPeriod}>/mo</Text>
-            </Text>
+          <View style={styles.labelValueContainer}>
+            <View style={styles.labelPlaceholder}>
+              <Icon name="trending-up" size={14} color="#4CD964" style={styles.interestIcon} />
+            </View>
+            <Text style={styles.interestValue}>{monthlyInterestFormatted}<Text style={styles.interestPeriod}>/mo</Text></Text>
           </View>
         </View>
         
@@ -219,10 +220,21 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
+    alignItems: 'flex-start',
     paddingHorizontal: 0,
     paddingLeft: 0,
     paddingRight: 8,
-    minWidth: 80,
+    minWidth: 100,
+  },
+  labelValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 2,
+    width: '100%',
+  },
+  labelPlaceholder: {
+    width: 28,
+    alignItems: 'flex-start',
   },
   rightSection: {
     flex: 1,
@@ -244,12 +256,12 @@ const styles = StyleSheet.create({
   inlineValueContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 2,
   },
   inlineLabel: {
     fontSize: 13,
     color: '#8E8E93',
-    marginRight: 4,
+    width: 28,
+    textAlign: 'left',
   },
   apyValue: {
     fontSize: 14,
@@ -260,10 +272,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#4CD964',
-    marginLeft: 2,
+    marginLeft: 0,
   },
   interestIcon: {
-    marginRight: 2,
+    marginRight: 0,
   },
   interestPeriod: {
     fontSize: 12,

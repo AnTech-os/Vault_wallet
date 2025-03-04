@@ -19,6 +19,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Enhanced Savings Goals UI:
+  - Added smooth animations to progress bars
+  - Improved progress indicator positioning and styling
+  - Removed unnecessary white background from percentage indicators
+  - Optimized options menu positioning and appearance
+  - Added divider line in options menu
+
+## [1.1.0] - 2025-03-03
+
 ### Added
 - Initial project setup using React Native CLI
 - Basic project structure with TypeScript support

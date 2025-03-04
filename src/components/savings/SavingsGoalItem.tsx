@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,9 @@ import {
   Animated,
   Dimensions,
   TextInput,
-  Alert
+  Alert,
+  Modal,
+  Pressable
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -46,8 +48,19 @@ const SavingsGoalItem: React.FC<SavingsGoalItemProps> = ({
 }) => {
   const [depositAmount, setDepositAmount] = useState('');
   const [showDepositInput, setShowDepositInput] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  const [optionsPosition, setOptionsPosition] = useState({ x: 0, y: 0 });
   
   const progress = calculateProgress(goal.currentAmount, goal.targetAmount);
+  const progressAnim = useRef(new Animated.Value(0)).current;
+  
+  useEffect(() => {
+    Animated.timing(progressAnim, {
+      toValue: progress,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
+  }, [progress]);
   const remaining = goal.targetAmount - goal.currentAmount;
   
   // Handle deposit submission
@@ -70,74 +83,110 @@ const SavingsGoalItem: React.FC<SavingsGoalItemProps> = ({
         onPress={() => onPress(goal)}
         activeOpacity={0.7}
       >
-        <View style={styles.topRow}>
-          <View style={styles.titleContainer}>
-            <Icon name={goal.icon} size={24} color="#007AFF" style={styles.icon} />
-            <View>
-              <Text style={styles.goalTitle}>{goal.title}</Text>
-              <Text style={styles.goalCategory}>{categoryNames[goal.category]}</Text>
-            </View>
+        {/* Header Section */}
+        <View style={styles.header}>
+          <View style={styles.iconContainer}>
+            <Icon name={goal.icon} size={22} color="#FFFFFF" />
           </View>
-          
-          <View style={styles.amountsContainer}>
-            <Text style={styles.currentAmount}>{formatCurrency(goal.currentAmount)}</Text>
-            <Text style={styles.targetAmount}>of {formatCurrency(goal.targetAmount)}</Text>
-          </View>
+          <Text style={styles.goalTitle} numberOfLines={1}>{goal.title}</Text>
+          <TouchableOpacity 
+            style={styles.addMoneyButton}
+            onPress={() => setShowDepositInput(!showDepositInput)}
+          >
+            <Icon name="cash-plus" size={16} color="#007AFF" />
+            <Text style={styles.addMoneyText}>Add</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.optionsButton}
+            onPress={(event) => {
+              const { pageX, pageY } = event.nativeEvent;
+              setOptionsPosition({ x: pageX, y: pageY });
+              setShowOptions(!showOptions);
+            }}
+          >
+            <Icon name="dots-vertical" size={20} color="#8E8E93" />
+          </TouchableOpacity>
         </View>
-        
-        <View style={styles.progressSection}>
-          <View style={styles.progressBarContainer}>
-            <View 
-              style={[
-                styles.progressBar, 
-                { width: `${progress}%` },
-                progress >= 100 ? styles.progressComplete : null
-              ]} 
-            />
-          </View>
-          
-          <View style={styles.progressDetails}>
-            <Text style={styles.progressText}>{progress}% Complete</Text>
-            <Text style={styles.targetDateText}>Target: {formatDate(goal.targetDate)}</Text>
-          </View>
-        </View>
-        
-        <View style={styles.bottomRow}>
-          <Text style={styles.remainingText}>
-            {remaining > 0 
-              ? `${formatCurrency(remaining)} left to goal` 
-              : 'Goal completed! 🎉'}
-          </Text>
-          
-          <View style={styles.actionsContainer}>
-            <TouchableOpacity 
-              style={styles.actionButton}
-              onPress={() => setShowDepositInput(!showDepositInput)}
-            >
-              <Icon name="cash-plus" size={18} color="#007AFF" />
-              <Text style={styles.actionText}>Add</Text>
-            </TouchableOpacity>
-            
-            {onViewHistory && (
+
+        {/* Options Menu */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showOptions}
+          onRequestClose={() => setShowOptions(false)}
+        >
+          <Pressable 
+            style={styles.modalOverlay}
+            onPress={() => setShowOptions(false)}
+          >
+            <View style={[styles.optionsMenu, {
+              position: 'absolute',
+              top: optionsPosition.y - 70,
+              right: 20,
+            }]}>
               <TouchableOpacity 
-                style={styles.actionButton}
-                onPress={() => onViewHistory(goal)}
+                style={styles.optionItem}
+                onPress={() => {
+                  setShowOptions(false);
+                  onViewHistory && onViewHistory(goal);
+                }}
               >
                 <Icon name="history" size={18} color="#007AFF" />
-                <Text style={styles.actionText}>History</Text>
+                <Text style={styles.optionText}>History</Text>
               </TouchableOpacity>
-            )}
+              <View style={styles.optionsDivider} />
+              <TouchableOpacity 
+                style={styles.optionItem}
+                onPress={() => {
+                  setShowOptions(false);
+                  onDelete(goal.id);
+                }}
+              >
+                <Icon name="trash-can-outline" size={18} color="#FF3B30" />
+                <Text style={[styles.optionText, styles.deleteText]}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Modal>
+
+        {/* Progress Section */}
+        <View style={styles.progressContainer}>
+          <View style={styles.amountsRow}>
+            <Text style={styles.currentAmount}>{formatCurrency(goal.currentAmount)}</Text>
+            <Text style={styles.targetAmount}>{formatCurrency(goal.targetAmount)}</Text>
+          </View>
+          
+          <View style={styles.progressBarWrapper}>
+            <View style={styles.progressBarContainer}>
+              <Animated.View 
+                style={[
+                  styles.progressBar,
+                  {
+                    width: progressAnim.interpolate({
+                      inputRange: [0, 100],
+                      outputRange: ['0%', '100%']
+                    })
+                  },
+                  progress >= 100 ? styles.progressComplete : null
+                ]} 
+              />
+            </View>
             
-            <TouchableOpacity 
-              style={[styles.actionButton, styles.deleteButton]}
-              onPress={() => onDelete(goal.id)}
-            >
-              <Icon name="trash-can-outline" size={18} color="#FF3B30" />
-              <Text style={[styles.actionText, styles.deleteText]}>Delete</Text>
-            </TouchableOpacity>
+            <Animated.View 
+              style={[styles.progressIndicator, { 
+                left: progressAnim.interpolate({
+                  inputRange: [0, 100],
+                  outputRange: ['2%', '98%']
+                })
+              }]}>
+              <Icon name="triangle" size={12} color="#007AFF" style={styles.progressArrow} />
+              <View style={styles.progressBubble}>
+                <Text style={styles.progressText}>{progress}%</Text>
+              </View>
+            </Animated.View>
           </View>
         </View>
-        
+
         {showDepositInput && (
           <View style={styles.depositInputContainer}>
             <Text style={styles.depositLabel}>Add Deposit:</Text>
@@ -176,110 +225,163 @@ const SavingsGoalItem: React.FC<SavingsGoalItemProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 12,
-    borderRadius: 12,
     backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginBottom: 10,
+    padding: 12,
+    paddingHorizontal: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
     elevation: 2,
   },
   goalContainer: {
-    padding: 16,
   },
-  topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+  header: {
     marginBottom: 12,
-  },
-  titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: '100%',
   },
-  icon: {
-    marginRight: 8,
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   goalTitle: {
-    fontSize: 18,
+    flex: 1,
+    fontSize: 17,
     fontWeight: '600',
-    color: '#333333',
+    color: '#000000',
+    marginLeft: 12,
+    marginRight: 12,
   },
-  goalCategory: {
-    fontSize: 14,
-    color: '#8E8E93',
-  },
-  amountsContainer: {
-    alignItems: 'flex-end',
-  },
-  currentAmount: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333333',
-  },
-  targetAmount: {
-    fontSize: 14,
-    color: '#8E8E93',
-  },
-  progressSection: {
+  progressContainer: {
     marginBottom: 12,
   },
-  progressBarContainer: {
-    height: 8,
-    backgroundColor: '#E5E5EA',
-    borderRadius: 4,
-    overflow: 'hidden',
+  amountsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
     marginBottom: 8,
+  },
+  currentAmount: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#000000',
+    letterSpacing: -0.5,
+  },
+  targetAmount: {
+    fontSize: 15,
+    color: '#8E8E93',
+  },
+  progressBarWrapper: {
+    position: 'relative',
+    marginBottom: 24,
+  },
+  progressBarContainer: {
+    height: 6,
+    backgroundColor: '#F2F2F7',
+    borderRadius: 3,
+    position: 'relative',
+    marginBottom: 16,
+    marginHorizontal: 8,
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#34C759',
-    borderRadius: 4,
+    backgroundColor: '#007AFF',
+    borderRadius: 3,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    minWidth: 6,
   },
   progressComplete: {
-    backgroundColor: '#5856D6',
+    backgroundColor: '#34C759',
   },
-  progressDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  progressIndicator: {
+    position: 'absolute',
+    top: 14,
+    left: 0,
+    transform: [{ translateX: '-50%' }],
+    alignItems: 'center',
+    zIndex: 2,
+  },
+  progressBubble: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 4,
+    minWidth: 45,
+    alignItems: 'center',
+    position: 'relative',
+    zIndex: 2,
   },
   progressText: {
-    fontSize: 14,
-    color: '#8E8E93',
-  },
-  targetDateText: {
-    fontSize: 14,
-    color: '#8E8E93',
-  },
-  bottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  remainingText: {
-    fontSize: 14,
-    color: '#8E8E93',
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: '#F2F2F7',
-    marginLeft: 8,
-  },
-  deleteButton: {
-    backgroundColor: '#FFEBEB',
-  },
-  actionText: {
     fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  progressArrow: {
+    transform: [{ rotate: '0deg' }],
+  },
+  addMoneyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  addMoneyText: {
     color: '#007AFF',
+    fontSize: 14,
+    fontWeight: '600',
     marginLeft: 4,
+  },
+  optionsButton: {
+    padding: 8,
+    width: 32,
+    alignItems: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  optionsMenu: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    width: 160,
+    padding: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 1000,
+  },
+  optionsDivider: {
+    height: 1,
+    backgroundColor: '#E5E5EA',
+    marginHorizontal: 0,
+  },
+  optionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 8,
+  },
+  optionText: {
+    marginLeft: 8,
+    fontSize: 15,
+    color: '#007AFF',
   },
   deleteText: {
     color: '#FF3B30',

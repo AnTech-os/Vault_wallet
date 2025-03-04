@@ -849,7 +849,6 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   listContainer: {
-    paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 100, // Extra space for the add button
   },
