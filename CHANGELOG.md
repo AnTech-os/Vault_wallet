@@ -5,6 +5,25 @@ All notable changes to the Secure DIY Budget App will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-03-03
+
+### Added
+- Debt Repayment Strategy Feature:
+  - Added ability to switch between Avalanche and Snowball debt repayment methods
+  - Created DebtStrategyModal component for selecting repayment strategy
+  - Implemented sorting logic based on selected strategy
+  - Added visual indicators for priority debts
+  - Improved strategy selection UI with descriptive text
+
+### Changed
+- Enhanced Debt Product UI:
+  - Made debt product tiles collapsible to show only vital information when collapsed
+  - Improved focus indicator styling and positioning
+  - Updated date formatting to consistent MM/DD/YYYY format
+  - Moved paid-off debt products to the bottom of the list
+  - Ensured paid-off debts are no longer marked as priority
+  - Added more descriptive strategy summary text
+
 ## [1.0.0] - 2025-03-02
 
 ### Changed

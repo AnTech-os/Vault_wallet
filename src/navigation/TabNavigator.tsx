@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import FinancialOverview from '../screens/FinancialOverview';
 import Budget from '../screens/Budget';
-import CreditCardsLoans from '../screens/CreditCardsLoans';
+import Debt from '../screens/Debt';
 import Savings from '../screens/Savings';
 import Subscriptions from '../screens/Subscriptions';
 
@@ -49,8 +49,8 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Cards & Loans"
-        component={CreditCardsLoans}
+        name="Debt"
+        component={Debt}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Icon name="credit-card" size={size} color={color} />

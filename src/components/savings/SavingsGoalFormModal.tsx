@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { v4 as uuidv4 } from 'uuid';
+import uuid from 'react-native-uuid';
 
 interface SavingsGoalFormModalProps {
   visible: boolean;
@@ -116,7 +116,7 @@ const SavingsGoalFormModal: React.FC<SavingsGoalFormModalProps> = ({
     
     // Create or update goal object
     const updatedGoal = {
-      id: isEditing && goal ? goal.id : uuidv4(),
+      id: isEditing && goal ? goal.id : uuid.v4().toString(),
       title: title.trim(),
       targetAmount: targetAmountNum,
       currentAmount: currentAmountNum,
